@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Гранит-Навигатор БК-Н</string>
+    <string name="text_inform">189 1 1 --- \nУл. Парковая 17:50 \nУл. Садовая 18:05 \nУл. Сосновая 18:15</string>
+    <string name="take_picture">Сделать снимок</string>
+    <string name="start_record1">Старт1</string>
+    <string name="camera_1">Камера1</string>
+    <string name="start_record2">Старт2</string>
+    <string name="camera_2">Камера2</string>
+</resources>
