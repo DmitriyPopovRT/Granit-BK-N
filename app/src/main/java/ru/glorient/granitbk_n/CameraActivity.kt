@@ -1,41 +1,23 @@
 package ru.glorient.granitbk_n
 
-import android.Manifest
-import android.graphics.SurfaceTexture
 import android.hardware.Camera
 import android.media.CamcorderProfile
 import android.media.MediaRecorder
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
-import android.view.Surface
-import android.view.SurfaceView
 import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.MediaController
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import kotlinx.android.synthetic.main.activity_camera.*
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.random.Random
 
 class CameraActivity : AppCompatActivity() {
-
-    // Разрешения для android 6 и выше
-    private val WRITE_REQUEST_CODE = 0
-    var permissions = arrayOf(
-        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        Manifest.permission.CAMERA,
-        Manifest.permission.RECORD_AUDIO,
-        Manifest.permission.READ_EXTERNAL_STORAGE
-    )
-
     // Задняя камера
     private var mBackCamera: Camera? = null
 
@@ -64,7 +46,7 @@ class CameraActivity : AppCompatActivity() {
     private var mediaRecorder1: MediaRecorder? = MediaRecorder()
     private var mediaRecorder2: MediaRecorder? = MediaRecorder()
 
-    private var TAG = "DualCamActivity"
+    private val tag = "DualCamActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,13 +54,6 @@ class CameraActivity : AppCompatActivity() {
 
         // Путь к файлу видео
         videoFileCat = File("storage/87CB-16F2/Movies/cat.mp4")
-
-        // Проверяем версию андроид, если выше 6.0 то выдаем запросы о разрешениях
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            //тут шестая версия и выше
-            ActivityCompat.requestPermissions(this, permissions, WRITE_REQUEST_CODE)
-        }
-
         recordBtn = findViewById(R.id.btnStartRecord)
         recordBtn?.setOnClickListener(recordVideoListener1)
 
@@ -107,7 +82,7 @@ class CameraActivity : AppCompatActivity() {
             try {
                 mediaRecorder1?.prepare()
             } catch (e: IOException) {
-                Log.i(TAG, "Prepare failed")
+                Log.i(tag, "Prepare failed")
             }
             mediaRecorder1?.start()
             recording = true
@@ -129,7 +104,7 @@ class CameraActivity : AppCompatActivity() {
             try {
                 mediaRecorder2?.prepare()
             } catch (e: IOException) {
-                Log.i(TAG, "Prepare failed")
+                Log.i(tag, "Prepare failed")
             }
             mediaRecorder2?.start()
             recording2 = true
@@ -150,7 +125,7 @@ class CameraActivity : AppCompatActivity() {
         mediaRecorder1?.setPreviewDisplay(mBackCamPreview?.holder?.surface)
         mediaRecorder1?.setOnErrorListener { mediaRecorder, i, i1 ->
             Log.i(
-                TAG,
+                tag,
                 "RECORDING FAILED ERROR CODE: $i AND EXTRA CODE: $i1"
             )
         }
@@ -220,6 +195,11 @@ class CameraActivity : AppCompatActivity() {
         mFrontCamera = null
     }
 
+//    override fun onStop() {
+//        super.onStop()
+//
+//    }
+
     // Указываем директорию для записи видеофайлов
     private fun initFile(cameraNamePrefix: String): File? {
         val dir = File(
@@ -236,7 +216,7 @@ class CameraActivity : AppCompatActivity() {
                 dir.path + File.separator +
                         cameraNamePrefix + timeStamp + ".mp4"
             )
-            Log.i(TAG, mediaFile.absolutePath)
+            Log.i(tag, mediaFile.absolutePath)
             return mediaFile
         }
         return file
@@ -277,7 +257,7 @@ class CameraActivity : AppCompatActivity() {
             camera = Camera.open(cameraId)
         } catch (e: java.lang.Exception) {
             Log.e(
-                TAG,
+                tag,
                 "Camera $cameraId is not available $e"
             )
         }

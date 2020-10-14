@@ -30,20 +30,13 @@
         app:layout_constraintStart_toEndOf="@+id/time"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textInform"
+    <LinearLayout
+        android:id="@+id/containerBus"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:gravity="center"
-        android:text="@string/text_inform"
-        android:textColor="@android:color/black"
-        android:textSize="30sp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/textView2"
-        app:layout_constraintEnd_toStartOf="@+id/imageButton4"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/time" />
 
@@ -55,7 +48,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:text="Здесь будут текстовые сообщения полученные от диспетчера \n\n\n\n"
+        android:text="Здесь будут текстовые сообщения полученные от диспетчера \n\n"
         android:textColor="@android:color/black"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/button2"
@@ -126,8 +119,8 @@
         android:layout_marginTop="4dp"
         android:layout_marginEnd="4dp"
         android:background="@color/colorAccent"
-        android:scaleType="centerCrop"
         android:padding="80dp"
+        android:scaleType="centerCrop"
         android:src="@drawable/ic_directions_bus"
         app:layout_constraintBottom_toTopOf="@+id/imageButton3"
         app:layout_constraintEnd_toEndOf="parent"
