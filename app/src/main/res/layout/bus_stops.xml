@@ -12,7 +12,6 @@
         android:layout_height="0dp"
         android:gravity="center_vertical"
         android:paddingStart="24dp"
-        android:text="18:15"
         android:textSize="22sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline22"
         app:layout_constraintEnd_toEndOf="parent"
@@ -303,7 +302,6 @@
         android:layout_height="0dp"
         android:gravity="center_vertical"
         android:paddingStart="24dp"
-        android:text="Ул. Нагорная д. 5"
         android:textSize="22sp"
 
         app:layout_constraintBottom_toTopOf="@+id/guideline18"
@@ -319,10 +317,7 @@
         android:layout_height="0dp"
         android:gravity="center_vertical"
         android:paddingStart="24dp"
-        android:text="Ул. Решетника д. 2"
         android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
         app:layout_constraintBottom_toTopOf="@+id/guideline20"
         app:layout_constraintEnd_toStartOf="@+id/guideline33"
         app:layout_constraintHorizontal_bias="0.0"
@@ -336,7 +331,6 @@
         android:layout_height="0dp"
         android:gravity="center_vertical"
         android:paddingStart="24dp"
-        android:text="Ул. Текстильщиков д. 9"
         android:textSize="22sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline22"
         app:layout_constraintEnd_toStartOf="@+id/guideline33"
@@ -380,7 +374,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.83" />
+        app:layout_constraintGuide_percent="0.77" />
 
     <TextView
         android:id="@+id/textView10"
@@ -388,7 +382,6 @@
         android:layout_height="0dp"
         android:gravity="center_vertical"
         android:paddingStart="24dp"
-        android:text="18:05"
         android:textSize="22sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline18"
         app:layout_constraintEnd_toEndOf="parent"
@@ -401,10 +394,7 @@
         android:layout_height="0dp"
         android:gravity="center_vertical"
         android:paddingStart="24dp"
-        android:text="18:10"
         android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
         app:layout_constraintBottom_toTopOf="@+id/guideline20"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView5"

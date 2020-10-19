@@ -6,4 +6,5 @@
     <string name="camera_1">Камера1</string>
     <string name="start_record2">Старт2</string>
     <string name="camera_2">Камера2</string>
+    <string name="start_service">Запустить службу</string>
 </resources>

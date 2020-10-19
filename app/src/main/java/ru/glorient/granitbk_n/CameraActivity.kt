@@ -53,7 +53,7 @@ class CameraActivity : AppCompatActivity() {
         setContentView(R.layout.activity_camera)
 
         // Путь к файлу видео
-        videoFileCat = File("storage/87CB-16F2/Movies/cat.mp4")
+        videoFileCat = File("storage/87CB-16F2/Granit-BK-N/video/cat.mp4")
         recordBtn = findViewById(R.id.btnStartRecord)
         recordBtn?.setOnClickListener(recordVideoListener1)
 

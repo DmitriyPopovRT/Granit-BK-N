@@ -1,21 +1,33 @@
 package ru.glorient.granitbk_n
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
+import android.graphics.Color
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.bus_stops.*
+import ru.glorient.granitbk_n.json.FileJsonOriginal
+import ru.glorient.granitbk_n.json.ParserJSON
+import ru.glorient.granitbk_n.json.Sequences
+import java.io.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
+    private var fileJsonOriginal = FileJsonOriginal()
+    private var sequences = ArrayList<Sequences>()
+    private var flagService = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,12 +49,47 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Подключаем меню
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    // Обрабатываем нажатие на пункты меню
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.startService -> {
+                if (flagService) {
+                    item.title = "Запустить службу"
+                    flagService = false
+                    Toast.makeText(this, "Служба остановлена", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Парсим json
+                    val str = ParserJSON().readFileSD()
+                    if (str != null) {
+                        fileJsonOriginal = ParserJSON().parse(str)!!
+                    }
+
+                    updateAvtoInformator()
+
+                    item.title = "Остановить службу"
+                    flagService = true
+                    Toast.makeText(this, "Служба запущена", Toast.LENGTH_SHORT).show()
+                }
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     // Дублируем onCreate если пользователь дал разрешения
     private fun onCreateActivity() {
         updateTime()
 
         // Отрисовываем View с остановками
         val view = layoutInflater.inflate(R.layout.bus_stops, containerBus, false)
+//        val view = layoutInflater.inflate(R.layout.activity_camera, containerBus, false)
         view.apply {
 //            textView.text = textToAdd
 //            deleteButton.setOnClickListener {
@@ -51,6 +98,52 @@ class MainActivity : AppCompatActivity() {
         }
 
         containerBus.addView(view)
+    }
+
+    // Обновление автоинформатора
+    private fun updateAvtoInformator() {
+        sequences = fileJsonOriginal.sequences
+        Log.d(TAG, "version = ${fileJsonOriginal.version}")
+
+        var i = 0
+        while (i < sequences.size) {
+            val sequence = sequences[i]
+
+            when (i) {
+                0 -> {
+                    textView5.text = sequence.name
+                    textView5.setTextColor(Color.BLACK)
+                    textView10.text = sequence.trigger.time.absolute
+                    textView10.setTextColor(Color.BLACK)
+                    i++
+                    playAudio(sequence.audio[0].toString())
+                }
+                1 -> {
+                    textView6.text = sequence.name
+                    textView11.text = sequence.trigger.time.absolute
+//                    playAudio(sequence.audio[0].toString())
+                    i++
+                }
+                2 -> {
+                    textView7.text = sequence.name
+                    textView12.text = sequence.trigger.time.absolute
+//                    playAudio(sequence.audio[0].toString())
+                    i++
+                }
+            }
+        }
+
+//        for (sequence in sequences) {
+//
+//            Log.d(TAG, "id = ${sequence.id}")
+//            Log.d(TAG, "name = ${sequence.name}")
+//            Log.d(TAG, "absolute = ${sequence.trigger.time.absolute}")
+//            Log.d(TAG, "audio = ${sequence.audio}")
+//            Log.d(TAG, "video = ${sequence.video}")
+//            Log.d(TAG, "text = ${sequence.let { it.texts[0].text }}")
+//            Log.d(TAG, "textnext = ${sequence.let { it.texts[1].textnext }}")
+//        }
+
     }
 
     // Раз в секунду обновляем время
@@ -62,6 +155,16 @@ class MainActivity : AppCompatActivity() {
                 mainHandler.postDelayed(this, 1000)
             }
         })
+    }
+
+    // Воспроизводим аудио
+    private fun playAudio(name: String) {
+        val audioJsonFile: File? = File("storage/87CB-16F2/Granit-BK-N/audio/$name")
+
+        val mp = MediaPlayer()
+        mp.setDataSource(audioJsonFile?.absolutePath)
+        mp.prepare()
+        mp.start()
     }
 
     // Отслеживаем принял ли пользователь все разрешения
