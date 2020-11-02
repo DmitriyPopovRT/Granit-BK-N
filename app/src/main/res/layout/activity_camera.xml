@@ -38,19 +38,6 @@
         app:layout_constraintTop_toTopOf="@+id/guideline4" />
 
     <Button
-        android:id="@+id/btnPreview1"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:text="@string/camera_1"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline4"
-        app:layout_constraintEnd_toStartOf="@+id/btnStartRecord"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/surfaceView" />
-
-    <Button
         android:id="@+id/btnStartRecord"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -58,23 +45,17 @@
         android:layout_toRightOf="@id/btnStartRecord"
         android:text="@string/start_record1"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/btnPreview1"
-        app:layout_constraintEnd_toStartOf="@+id/btnPreview2"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/btnPreview1"
-        app:layout_constraintTop_toTopOf="@+id/guideline5" />
-
-    <Button
-        android:id="@+id/btnPreview2"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:text="@string/camera_2"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/surfaceView2"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_square"
+        app:layout_constraintBottom_toTopOf="@+id/guideline4"
         app:layout_constraintEnd_toStartOf="@+id/btnStartRecord2"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/btnStartRecord"
-        app:layout_constraintTop_toBottomOf="@+id/surfaceView" />
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline5" />
 
     <Button
         android:id="@+id/btnStartRecord2"
@@ -83,23 +64,29 @@
         android:layout_alignTop="@id/btnStartRecord"
         android:layout_toRightOf="@id/btnStartRecord"
         android:text="@string/start_record2"
+        android:layout_margin="4dp"
+        android:background="@drawable/button_square"
+        android:textColor="@android:color/white"
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline4"
         app:layout_constraintEnd_toStartOf="@+id/btnPlay"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/btnPreview2"
+        app:layout_constraintStart_toEndOf="@+id/btnStartRecord"
         app:layout_constraintTop_toTopOf="@+id/guideline5" />
 
     <Button
         android:id="@+id/btnPlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="16dp"
-        android:onClick="onClickPlay"
+        android:layout_marginEnd="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         android:text="Воспр."
         android:textSize="12sp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_square"
         app:layout_constraintBottom_toTopOf="@+id/guideline4"
-        app:layout_constraintEnd_toStartOf="@+id/videoView"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/btnStartRecord2"
         app:layout_constraintTop_toTopOf="@+id/guideline5" />

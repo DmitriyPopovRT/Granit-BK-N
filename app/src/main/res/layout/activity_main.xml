@@ -36,7 +36,7 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/textView2"
-        app:layout_constraintEnd_toStartOf="@+id/imageButton3"
+        app:layout_constraintEnd_toStartOf="@+id/avtoInformatorButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/time" />
 
@@ -97,14 +97,30 @@
         app:layout_constraintStart_toEndOf="@+id/button2" />
 
     <ImageButton
-        android:id="@+id/imageButton3"
+        android:id="@+id/imageButton4"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+        android:background="@color/colorAccent"
+        android:padding="50dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_directions_bus"
+        app:layout_constraintBottom_toTopOf="@+id/avtoInformatorButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <ImageButton
+        android:id="@+id/avtoInformatorButton"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="4dp"
         android:layout_marginBottom="8dp"
         android:background="@color/colorAccent"
-        android:padding="80dp"
+        android:padding="50dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_event_note"
         app:layout_constraintBottom_toTopOf="@+id/camera"
@@ -113,41 +129,25 @@
         app:layout_constraintTop_toBottomOf="@+id/imageButton4" />
 
     <ImageButton
-        android:id="@+id/imageButton4"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="4dp"
-        android:background="@color/colorAccent"
-        android:padding="80dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_directions_bus"
-        app:layout_constraintBottom_toTopOf="@+id/imageButton3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
-
-    <ImageButton
         android:id="@+id/camera"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginEnd="4dp"
         android:layout_marginBottom="4dp"
         android:background="@color/colorAccent"
-        android:padding="80dp"
+        android:padding="50dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_camera"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toBottomOf="@+id/imageButton3" />
+        app:layout_constraintTop_toBottomOf="@+id/avtoInformatorButton" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="243dp" />
+        app:layout_constraintGuide_end="200dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,33 +1,29 @@
 package ru.glorient.granitbk_n
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.bus_stops.*
-import ru.glorient.granitbk_n.json.FileJsonOriginal
+import org.greenrobot.eventbus.EventBus
+import ru.glorient.granitbk_n.camera.CameraFragment
 import ru.glorient.granitbk_n.json.ParserJSON
-import ru.glorient.granitbk_n.json.Sequences
-import java.io.*
 import java.util.*
-import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
-    private var fileJsonOriginal = FileJsonOriginal()
-    private var sequences = ArrayList<Sequences>()
-    private var flagService = false
+    var flagService = false
+    private lateinit var textView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,8 +40,35 @@ class MainActivity : AppCompatActivity() {
 
         // При нажатии на значок переходим в активность Камера
         camera.setOnClickListener {
-            val cameraActivityIntent = Intent(this, CameraActivity::class.java)
-            startActivity(cameraActivityIntent)
+            val fragmentCamera = supportFragmentManager.findFragmentByTag("CameraFragment")
+            val alreadyHasFragment = fragmentCamera != null
+
+            if (!alreadyHasFragment) {
+                // Создаем фрагмент камера
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.containerBus,
+                        CameraFragment(), "CameraFragment")
+                    .addToBackStack("CameraFragment")
+                    .commit()
+            } else {
+                supportFragmentManager.popBackStack("CameraFragment", 0)
+            }
+        }
+
+        avtoInformatorButton.setOnClickListener {
+            val fragmentAvtoInformator =
+                supportFragmentManager.findFragmentByTag("AvtoInformatorFragment")
+            val alreadyHasFragment = fragmentAvtoInformator != null
+
+            if (!alreadyHasFragment) {
+                // Создаем фрагмент автоинформатор
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.containerBus, AvtoInformatorFragment(), "AvtoInformatorFragment")
+                    .addToBackStack("AvtoInformatorFragment")
+                    .commit()
+            } else {
+                supportFragmentManager.popBackStack("AvtoInformatorFragment", 0)
+            }
         }
     }
 
@@ -64,14 +87,37 @@ class MainActivity : AppCompatActivity() {
                     item.title = "Запустить службу"
                     flagService = false
                     Toast.makeText(this, "Служба остановлена", Toast.LENGTH_SHORT).show()
+//                    EventBus.getDefault().register(this)
+                    Log.d(
+                        AvtoInformatorFragment.TAG,
+                        "Остановили службу и передаем флаг $flagService"
+                    )
+                    // Передаем флаг через EventBus
+                    val obj = MessageEvent(flagService)
+                    EventBus.getDefault().post(obj)
                 } else {
                     // Парсим json
                     val str = ParserJSON().readFileSD()
                     if (str != null) {
-                        fileJsonOriginal = ParserJSON().parse(str)!!
-                    }
+                        Log.d(AvtoInformatorFragment.TAG, "Парсим и передаем listener")
 
-                    updateAvtoInformator()
+                        // Удаляем оповещение о пустом контейнере
+                        containerBus.removeView(textView)
+//                        val progBar = createProgressBar()
+//                        containerBus.addView(progBar)
+
+                        supportFragmentManager.beginTransaction()
+                            .replace(
+                                R.id.containerBus,
+                                AvtoInformatorFragment.newInstance(str),
+                                "AvtoInformatorFragment"
+                            )
+                            .addToBackStack("AvtoInformatorFragment")
+                            .commit()
+
+//                        containerBus.removeView(progBar)
+
+                    }
 
                     item.title = "Остановить службу"
                     flagService = true
@@ -83,67 +129,42 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Функция создания прогресс бара программно
+    private fun createProgressBar(): ProgressBar {
+        // Создаем прогессбар
+        val progressBar = ProgressBar(this)
+        // Указываем программно ширину textView
+        val params = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        progressBar.layoutParams = params
+
+        progressBar.foregroundGravity = Gravity.CENTER
+        return progressBar
+    }
+
+
     // Дублируем onCreate если пользователь дал разрешения
     private fun onCreateActivity() {
         updateTime()
+        textView = TextView(this)
+        // Указываем программно ширину textView
+        val params = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        textView.layoutParams = params
+        textView.text = "Список пуст. Пожалуйста, запустите службу"
+        textView.gravity = Gravity.CENTER
+        textView.setTextColor(Color.RED)
+        containerBus.addView(textView)
 
-        // Отрисовываем View с остановками
-        val view = layoutInflater.inflate(R.layout.bus_stops, containerBus, false)
-//        val view = layoutInflater.inflate(R.layout.activity_camera, containerBus, false)
-        view.apply {
-//            textView.text = textToAdd
-//            deleteButton.setOnClickListener {
-//                container.removeView(this)
-//            }
-        }
-
-        containerBus.addView(view)
-    }
-
-    // Обновление автоинформатора
-    private fun updateAvtoInformator() {
-        sequences = fileJsonOriginal.sequences
-        Log.d(TAG, "version = ${fileJsonOriginal.version}")
-
-        var i = 0
-        while (i < sequences.size) {
-            val sequence = sequences[i]
-
-            when (i) {
-                0 -> {
-                    textView5.text = sequence.name
-                    textView5.setTextColor(Color.BLACK)
-                    textView10.text = sequence.trigger.time.absolute
-                    textView10.setTextColor(Color.BLACK)
-                    i++
-                    playAudio(sequence.audio[0].toString())
-                }
-                1 -> {
-                    textView6.text = sequence.name
-                    textView11.text = sequence.trigger.time.absolute
-//                    playAudio(sequence.audio[0].toString())
-                    i++
-                }
-                2 -> {
-                    textView7.text = sequence.name
-                    textView12.text = sequence.trigger.time.absolute
-//                    playAudio(sequence.audio[0].toString())
-                    i++
-                }
-            }
-        }
-
-//        for (sequence in sequences) {
-//
-//            Log.d(TAG, "id = ${sequence.id}")
-//            Log.d(TAG, "name = ${sequence.name}")
-//            Log.d(TAG, "absolute = ${sequence.trigger.time.absolute}")
-//            Log.d(TAG, "audio = ${sequence.audio}")
-//            Log.d(TAG, "video = ${sequence.video}")
-//            Log.d(TAG, "text = ${sequence.let { it.texts[0].text }}")
-//            Log.d(TAG, "textnext = ${sequence.let { it.texts[1].textnext }}")
-//        }
-
+//        // Создаем фрагмент автоинформатора
+//        supportFragmentManager.beginTransaction()
+//            .replace(R.id.containerBus, AvtoInformatorFragment(), "AvtoInformatorFragment")
+//            .addToBackStack("AvtoInformatorFragment")
+//            .commit()
     }
 
     // Раз в секунду обновляем время
@@ -155,16 +176,6 @@ class MainActivity : AppCompatActivity() {
                 mainHandler.postDelayed(this, 1000)
             }
         })
-    }
-
-    // Воспроизводим аудио
-    private fun playAudio(name: String) {
-        val audioJsonFile: File? = File("storage/87CB-16F2/Granit-BK-N/audio/$name")
-
-        val mp = MediaPlayer()
-        mp.setDataSource(audioJsonFile?.absolutePath)
-        mp.prepare()
-        mp.start()
     }
 
     // Отслеживаем принял ли пользователь все разрешения
@@ -246,3 +257,5 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MainActivity"
     }
 }
+
+class MessageEvent(val serviceFlag: Boolean)

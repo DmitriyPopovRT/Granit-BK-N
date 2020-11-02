@@ -1,4 +1,4 @@
-package ru.glorient.granitbk_n
+package ru.glorient.granitbk_n.camera
 
 import android.hardware.Camera
 import android.media.CamcorderProfile
@@ -10,14 +10,15 @@ import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.MediaController
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.activity_camera.*
+import ru.glorient.granitbk_n.R
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CameraActivity : AppCompatActivity() {
+class CameraFragment : Fragment(R.layout.activity_camera) {
     // Задняя камера
     private var mBackCamera: Camera? = null
 
@@ -46,25 +47,20 @@ class CameraActivity : AppCompatActivity() {
     private var mediaRecorder1: MediaRecorder? = MediaRecorder()
     private var mediaRecorder2: MediaRecorder? = MediaRecorder()
 
-    private val tag = "DualCamActivity"
+//    private val tag = "DualCamActivity"
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_camera)
-
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
         // Путь к файлу видео
         videoFileCat = File("storage/87CB-16F2/Granit-BK-N/video/cat.mp4")
-        recordBtn = findViewById(R.id.btnStartRecord)
-        recordBtn?.setOnClickListener(recordVideoListener1)
+        recordBtn = btnStartRecord
+        btnStartRecord.setOnClickListener(recordVideoListener1)
+        btnStartRecord2.setOnClickListener(recordVideoListener2)
+        recordBtn2 = btnStartRecord2
 
-        recordBtn2 = findViewById(R.id.btnStartRecord2)
-        recordBtn2?.setOnClickListener(recordVideoListener2)
-
-        btnPreview1.setOnClickListener {
-            restartSurface1()
-        }
-        btnPreview2.setOnClickListener {
-            restartSurface2()
+        // Воспроизводим видео
+        btnPlay.setOnClickListener {
+            onClickPlay()
         }
     }
 
@@ -152,8 +148,10 @@ class CameraActivity : AppCompatActivity() {
     // Захватываем изображение задней камеры
     private fun restartSurface1() {
         mBackCamera = getCameraInstance(0)
-        mBackCamPreview = BackCamera(this, mBackCamera)
-        val backPreview = findViewById<View>(R.id.surfaceView) as FrameLayout
+        mBackCamPreview =
+            BackCamera(activity, mBackCamera)
+//        val backPreview = activity?.findViewById<View>(R.id.surfaceView) as FrameLayout
+        val backPreview = surfaceView as FrameLayout
         backPreview.addView(mBackCamPreview)
         try {
             mBackCamera!!.setPreviewDisplay(mBackCamPreview!!.getHolder())
@@ -166,8 +164,10 @@ class CameraActivity : AppCompatActivity() {
     // Захватываем изображение фронтальной камеры
     private fun restartSurface2() {
         mFrontCamera = getCameraInstance(1)
-        mFrontCamPreview = FrontCamera(this, mFrontCamera)
-        val frontPreview = findViewById<View>(R.id.surfaceView2) as FrameLayout
+        mFrontCamPreview =
+            FrontCamera(activity, mFrontCamera)
+//        val frontPreview = activity?.findViewById<View>(R.id.surfaceView2) as FrameLayout
+        val frontPreview = surfaceView2 as FrameLayout
         frontPreview.addView(mFrontCamPreview)
         try {
             mFrontCamera!!.setPreviewDisplay(mFrontCamPreview!!.getHolder())
@@ -205,12 +205,12 @@ class CameraActivity : AppCompatActivity() {
         val dir = File(
             Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES
-            ), "DualCameraCapture"
+            ), "Granit BK-N"
         )
         if (!dir.exists() && !dir.mkdirs()) {
             file = null
         } else {
-            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+            val timeStamp = SimpleDateFormat("ddMMyyyy_HHmmss").format(Date())
             val mediaFile: File
             mediaFile = File(
                 dir.path + File.separator +
@@ -223,8 +223,8 @@ class CameraActivity : AppCompatActivity() {
     }
 
     // Воспроизводим видео с SD карты
-    fun onClickPlay(view: View?) {
-        val mediaController = MediaController(this)
+    private fun onClickPlay() {
+        val mediaController = MediaController(activity)
         mediaController.setMediaPlayer(videoView)
         videoView.setOnPreparedListener { mp -> mp.isLooping = true }
         videoView.setVideoPath(videoFileCat!!.absolutePath)

@@ -15,7 +15,7 @@
         android:textSize="22sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline22"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView5"
+        app:layout_constraintStart_toEndOf="@+id/textView2"
         app:layout_constraintTop_toTopOf="@+id/guideline21" />
 
     <androidx.constraintlayout.widget.Guideline
@@ -297,13 +297,12 @@
         app:layout_constraintTop_toTopOf="@+id/guideline32" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/textView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center_vertical"
         android:paddingStart="24dp"
         android:textSize="22sp"
-
         app:layout_constraintBottom_toTopOf="@+id/guideline18"
         app:layout_constraintEnd_toStartOf="@+id/guideline33"
         app:layout_constraintHorizontal_bias="1.0"
@@ -385,7 +384,7 @@
         android:textSize="22sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline18"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView5"
+        app:layout_constraintStart_toEndOf="@+id/textView2"
         app:layout_constraintTop_toTopOf="@+id/guideline17" />
 
     <TextView
@@ -397,7 +396,7 @@
         android:textSize="22sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline20"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView5"
+        app:layout_constraintStart_toEndOf="@+id/textView2"
         app:layout_constraintTop_toTopOf="@+id/guideline19" />
 
     <ImageView

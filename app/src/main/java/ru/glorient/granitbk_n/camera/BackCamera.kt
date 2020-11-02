@@ -1,4 +1,4 @@
-package ru.glorient.granitbk_n
+package ru.glorient.granitbk_n.camera
 
 import android.content.Context
 import android.hardware.Camera
