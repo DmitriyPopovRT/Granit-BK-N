@@ -3,4 +3,9 @@
     <string name="start_record1">Запись1</string>
     <string name="start_record2">Запись2</string>
     <string name="start_service">Запустить службу</string>
+    <string name="speed">%1$s км/ч</string>
+    <string name="location_absent">Локация отсутствует</string>
+    <string name="location_request_was_canceled">Запрос локации был отменен</string>
+    <string name="location_request_failed">Запрос локации завершился неудачно</string>
+
 </resources>

@@ -10,9 +10,11 @@ import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.MediaController
+import android.widget.VideoView
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.activity_camera.*
+//import kotlinx.android.synthetic.main.activity_camera.*
 import ru.glorient.granitbk_n.R
+import ru.glorient.granitbk_n.databinding.ActivityMainBinding
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -47,12 +49,25 @@ class CameraFragment : Fragment(R.layout.activity_camera) {
     private var mediaRecorder1: MediaRecorder? = MediaRecorder()
     private var mediaRecorder2: MediaRecorder? = MediaRecorder()
 
-//    private val tag = "DualCamActivity"
+    private lateinit var btnStartRecord: Button
+    private lateinit var btnStartRecord2: Button
+    private lateinit var btnPlay: Button
+    private lateinit var videoView: VideoView
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         // Путь к файлу видео
         videoFileCat = File("storage/87CB-16F2/Granit-BK-N/video/cat.mp4")
+
+//        val view = this
+//            .layoutInflater
+//            .inflate(R.layout.activity_camera, null)
+
+        btnStartRecord = view.findViewById(R.id.btnStartRecord)
+        btnStartRecord2 = view.findViewById(R.id.btnStartRecord2)
+        btnPlay = view.findViewById(R.id.btnPlay)
+        videoView = view.findViewById(R.id.videoView)
+
         recordBtn = btnStartRecord
         btnStartRecord.setOnClickListener(recordVideoListener1)
         btnStartRecord2.setOnClickListener(recordVideoListener2)
@@ -62,6 +77,11 @@ class CameraFragment : Fragment(R.layout.activity_camera) {
         btnPlay.setOnClickListener {
             onClickPlay()
         }
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
     }
 
     // Обработчик нажатия на кнопку Запись с задней камеры
@@ -150,8 +170,8 @@ class CameraFragment : Fragment(R.layout.activity_camera) {
         mBackCamera = getCameraInstance(0)
         mBackCamPreview =
             BackCamera(activity, mBackCamera)
-//        val backPreview = activity?.findViewById<View>(R.id.surfaceView) as FrameLayout
-        val backPreview = surfaceView as FrameLayout
+        val backPreview = activity?.findViewById<View>(R.id.surfaceView) as FrameLayout
+//        val backPreview = surfaceView as FrameLayout
         backPreview.addView(mBackCamPreview)
         try {
             mBackCamera!!.setPreviewDisplay(mBackCamPreview!!.getHolder())
@@ -166,8 +186,8 @@ class CameraFragment : Fragment(R.layout.activity_camera) {
         mFrontCamera = getCameraInstance(1)
         mFrontCamPreview =
             FrontCamera(activity, mFrontCamera)
-//        val frontPreview = activity?.findViewById<View>(R.id.surfaceView2) as FrameLayout
-        val frontPreview = surfaceView2 as FrameLayout
+        val frontPreview = activity?.findViewById<View>(R.id.surfaceView2) as FrameLayout
+//        val frontPreview = surfaceView2 as FrameLayout
         frontPreview.addView(mFrontCamPreview)
         try {
             mFrontCamera!!.setPreviewDisplay(mFrontCamPreview!!.getHolder())
