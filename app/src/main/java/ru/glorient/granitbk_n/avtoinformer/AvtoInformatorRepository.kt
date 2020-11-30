@@ -3,6 +3,7 @@ package ru.glorient.granitbk_n.avtoinformer
 import android.util.Log
 import org.json.JSONObject
 import ru.glorient.granitbk_n.accesory.UpdateListListener
+import ru.glorient.informer.ManualScript
 import ru.glorient.informer.RouteItem
 import ru.glorient.services.IServiceListiner
 import ru.glorient.services.ServiceManager
@@ -13,6 +14,7 @@ class AvtoInformatorRepository : IServiceListiner {
     var isConnected = false
     override var mServiceManager: ServiceManager? = null
     var mRoute = mutableListOf<RouteItem>()
+    var mScripts = mutableListOf<ManualScript>()
     var mStationID = 0
     private val listStops = mutableListOf<Stop>()
     var indexStop = 0
@@ -43,7 +45,8 @@ class AvtoInformatorRepository : IServiceListiner {
                     }
                     mRoute.add(item)
                     val defaultStop = Stop.DefaultStop(
-                        Random.nextLong(),
+//                        Random.nextLong(),
+                        item.mID,
                         item.mName,
                         ""
                     )
@@ -61,13 +64,13 @@ class AvtoInformatorRepository : IServiceListiner {
 //            if (data.has("circle"))
 //                isCircle = data.getBoolean("circle")
 //
-//            if(data.has("scripts")){
-//                mScripts.clear()
-//                val dt = data.getJSONArray("scripts")
-//                for(i in 0..dt.length()-1){
-//                    mScripts.add(ManualScript(dt.getJSONObject(i)))
-//                }
-//            }
+            if(data.has("scripts")){
+                mScripts.clear()
+                val dt = data.getJSONArray("scripts")
+                for(i in 0..dt.length()-1){
+                    mScripts.add(ManualScript(dt.getJSONObject(i)))
+                }
+            }
 //
             if (data.has("station")) {
 //                Log.d(AvtoInformatorFragment.TAG, "mRoute $mRoute")
@@ -84,7 +87,7 @@ class AvtoInformatorRepository : IServiceListiner {
 
                     listStops.removeAt(index)
                     val defaultStop = Stop.DefaultStop(
-                        Random.nextLong(),
+                        r1.mID,
                         r1.mName,
                         ""
                     )
@@ -102,7 +105,7 @@ class AvtoInformatorRepository : IServiceListiner {
 
                     listStops.removeAt(index)
                     val nextStop = Stop.NextStop(
-                        Random.nextLong(),
+                        r1.mID,
                         r1.mName,
                         ""
                     )
@@ -142,5 +145,11 @@ class AvtoInformatorRepository : IServiceListiner {
         if (tp == ServiceManager.ServiceType.Informer) {
             isConnected = (state == ServiceManager.ServiceState.RUN)
         }
+    }
+
+    fun toggleGPS(){
+        mServiceManager?.sendMessage(ServiceManager.ServiceType.Informer,
+            JSONObject("""{"gpstoggle":"toggle"}"""))
+
     }
 }

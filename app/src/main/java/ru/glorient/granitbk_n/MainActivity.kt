@@ -3,33 +3,37 @@ package ru.glorient.granitbk_n
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
+import android.os.*
 import android.util.Log
-import android.view.*
-import android.widget.*
+import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
-//import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONObject
+import ru.glorient.granitbk_n.accesory.DialogFragmentSetting
+import ru.glorient.granitbk_n.accesory.OpenFileDialog
+import ru.glorient.granitbk_n.accesory.SettingsParse
 import ru.glorient.granitbk_n.accesory.UpdateListListener
 import ru.glorient.granitbk_n.avtoinformer.AvtoInformatorFragment
 import ru.glorient.granitbk_n.camera.CameraFragment
+import ru.glorient.granitbk_n.databinding.ActivityMainBinding
 import ru.glorient.services.ServiceManager
 import java.util.*
 
 class MainActivity : AppCompatActivity(), UpdateListListener {
+    // Флаг запущен ли сервис
     var flagService = false
-    private lateinit var textView: TextView
-    private lateinit var textViewCurrentTime: TextView
-    private lateinit var buttonCamera: ImageButton
-    private lateinit var buttonAvtoinformator: ImageButton
-    private lateinit var containerBus: LinearLayout
-    private lateinit var textViewSpeed: TextView
+    // Начальное textView показывающее что маршрут не подгружен
+    private lateinit var textViewNoList: TextView
+    private lateinit var binding: ActivityMainBinding
 
     private val updateListListener: UpdateListListener?
         get() = supportFragmentManager.findFragmentByTag("AvtoInformatorFragment")
@@ -37,13 +41,9 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        textViewCurrentTime = findViewById(R.id.time)
-        buttonCamera = findViewById(R.id.camera)
-        buttonAvtoinformator = findViewById(R.id.avtoInformatorButton)
-        containerBus = findViewById(R.id.containerBus)
-        textViewSpeed = findViewById(R.id.speed)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         // Проверяем все ли даны разрешения
         if (!verifyPermissions()) {
@@ -54,10 +54,8 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
             onCreateActivity()
         }
 
-        init()
-
-        // При нажатии на значок переходим в активность Камера
-        buttonCamera.setOnClickListener {
+        // При нажатии на значок загружаем фрагмент Камера
+        binding.camera.setOnClickListener {
             val fragmentCamera = supportFragmentManager.findFragmentByTag("CameraFragment")
             val alreadyHasFragment = fragmentCamera != null
 
@@ -75,7 +73,8 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
             }
         }
 
-        buttonAvtoinformator.setOnClickListener {
+        // При нажатии на значок загружаем фрагмент Автоинформатор
+        binding.avtoInformatorButton.setOnClickListener {
             val fragmentAvtoInformator =
                 supportFragmentManager.findFragmentByTag("AvtoInformatorFragment")
             val alreadyHasFragment = fragmentAvtoInformator != null
@@ -83,13 +82,47 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
             if (!alreadyHasFragment) {
                 // Создаем фрагмент автоинформатор
                 supportFragmentManager.beginTransaction()
-                    .replace(R.id.containerBus,
-                        AvtoInformatorFragment(), "AvtoInformatorFragment")
+                    .replace(
+                        R.id.containerBus,
+                        AvtoInformatorFragment(), "AvtoInformatorFragment"
+                    )
                     .addToBackStack("AvtoInformatorFragment")
                     .commit()
             } else {
                 supportFragmentManager.popBackStack("AvtoInformatorFragment", 0)
             }
+        }
+
+        // Выбираем маршрут из файлов на устройстве
+        binding.buttonRoute.setOnClickListener {
+            val fileDialog = OpenFileDialog(this)
+            fileDialog.setOpenDialogListener { fileName ->
+                Log.d(AvtoInformatorFragment.TAG, "Путь к файлу $fileName")
+                filePath = fileName
+                init()
+            }
+            fileDialog.show()
+        }
+
+        // Настройки
+        binding.buttonSetting.setOnClickListener {
+//            val file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path + File.separator.toString() + "settings.jsonc"
+            DialogFragmentSetting()
+                .show(supportFragmentManager, "DialogFragmentSetting")
+        }
+
+        // Автоматический/ручной режим
+        binding.buttonAvto.setOnClickListener {
+            if(flagSelectedButtonAvto) {
+                binding.buttonAvto.setBackgroundResource(R.drawable.button_square)
+            }
+            else {
+                binding.buttonAvto.setBackgroundResource(R.drawable.button_square_select)
+            }
+
+            flagSelectedButtonAvto = !flagSelectedButtonAvto
+
+            model.mInformer.toggleGPS()
         }
     }
 
@@ -102,6 +135,7 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
 
     // Инициализируем ServiceManager
     fun init() {
+        model = Model()
         model.serviceManager = ServiceManager(
             context = this,
             onStateChange = { serviceType: ServiceManager.ServiceType, serviceState: ServiceManager.ServiceState ->
@@ -133,43 +167,46 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.startService -> {
-                if (!flagService) {
+                if (filePath.isNotEmpty()) {
+                    if (!flagService) {
+                        model.states.forEach {
+                            //                    if (it.value.state == ServiceManager.ServiceState.STOPED) {
+                            model.serviceManager.startService(
+                                it.key,
+                                it.value.connection,
+                                it.value.payload
+                            )
 
-                    model.states.forEach {
-                        //                    if (it.value.state == ServiceManager.ServiceState.STOPED) {
-                        model.serviceManager.startService(
-                            it.key,
-                            it.value.connection,
-                            it.value.payload
-                        )
+                            if (it.key.name == "Informer") {
+                                binding.containerBus.removeView(textViewNoList)
 
-                        if (it.key.name == "Informer") {
-                            containerBus.removeView(textView)
+                                val timeDelay = SystemClock.uptimeMillis() + 1000L
+                                val mainHandler = Handler(Looper.getMainLooper())
+                                mainHandler.postAtTime({
+                                    supportFragmentManager.beginTransaction()
+                                        .replace(
+                                            R.id.containerBus,
+                                            AvtoInformatorFragment.newInstance(""),
+                                            "AvtoInformatorFragment"
+                                        )
+                                        .addToBackStack("AvtoInformatorFragment")
+                                        .commit()
+                                }, timeDelay)
+                            }
 
-                            val timeDelay = SystemClock.uptimeMillis() + 1000L
-                            val mainHandler = Handler(Looper.getMainLooper())
-                            mainHandler.postAtTime({
-                                supportFragmentManager.beginTransaction()
-                                    .replace(
-                                        R.id.containerBus,
-                                        AvtoInformatorFragment.newInstance(""),
-                                        "AvtoInformatorFragment"
-                                    )
-                                    .addToBackStack("AvtoInformatorFragment")
-                                    .commit()
-                            }, timeDelay)
+                            item.title = "Остановить службу"
+                            flagService = true
                         }
+                    } else {
+                        item.title = "Запустить службу"
+                        flagService = false
 
-                        item.title = "Остановить службу"
-                        flagService = true
+                        model.states.forEach {
+                            model.serviceManager.stopService(it.key)
+                        }
                     }
                 } else {
-                    item.title = "Запустить службу"
-                    flagService = false
-
-                    model.states.forEach {
-                        model.serviceManager.stopService(it.key)
-                    }
+                    Toast.makeText(this, "Выберите файл маршрута", Toast.LENGTH_SHORT).show()
                 }
 
 //                // Передаем флаг через EventBus
@@ -201,17 +238,20 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
     // Дублируем onCreate если пользователь дал разрешения
     private fun onCreateActivity() {
         updateTime()
-        textView = TextView(this)
+        textViewNoList = TextView(this)
         // Указываем программно ширину textView
         val params = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
-        textView.layoutParams = params
-        textView.text = "Список пуст. Пожалуйста, запустите службу"
-        textView.gravity = Gravity.CENTER
-        textView.setTextColor(Color.RED)
-        containerBus.addView(textView)
+        textViewNoList.layoutParams = params
+        textViewNoList.text = "Список пуст. Пожалуйста, запустите службу"
+        textViewNoList.gravity = Gravity.CENTER
+        textViewNoList.setTextColor(Color.RED)
+        binding.containerBus.addView(textViewNoList)
+
+        // Инициализируем и считываем настройки с json
+        settingsParse = SettingsParse(this)
     }
 
     // Раз в секунду обновляем время
@@ -219,7 +259,7 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
         val mainHandler = Handler(Looper.getMainLooper())
         mainHandler.post(object : Runnable {
             override fun run() {
-                textViewCurrentTime.text = getCurrentTime()
+                binding.time.text = getCurrentTime()
                 getLocation()
                 mainHandler.postDelayed(this, 1000)
             }
@@ -303,7 +343,10 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
             Manifest.permission.CAMERA
         )
         private const val TAG = "MainActivity"
-        val model: Model = Model()
+        lateinit var model: Model
+        lateinit var settingsParse: SettingsParse
+        var filePath: String = ""
+        var flagSelectedButtonAvto = true
     }
 
     // Прокидываем листенер до фрагмента
@@ -327,31 +370,17 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
             .lastLocation
             .addOnSuccessListener {
                 it?.let {
-                    val speed = (it.speed.toInt()*3600)/1000
+                    val speed = (it.speed.toInt() * 3600) / 1000
                     val str = resources.getString(R.string.speed, speed.toString())
                     // Изменяем скорость
-                    textViewSpeed.text = str
-                } ?: Toast.makeText(
-                    this,
-                    R.string.location_absent,
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
+                    binding.speed.text = str
+                } ?: Log.d(TAG, resources.getString(R.string.location_absent))
             }
             .addOnCanceledListener {
-                Toast.makeText(
-                    this,
-                    R.string.location_request_was_canceled,
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
+                Log.d(TAG, resources.getString(R.string.location_request_was_canceled))
             }
             .addOnFailureListener {
-                Toast.makeText(
-                    this,
-                    R.string.location_request_failed,
-                    Toast.LENGTH_SHORT
-                ).show()
+                Log.d(TAG, resources.getString(R.string.location_request_failed))
             }
     }
 }

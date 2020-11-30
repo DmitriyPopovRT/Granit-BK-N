@@ -4,7 +4,10 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
 
+    <color name="colorButtonClick">#00BCD4</color>
     <color name="grayAP">#e3e4e6</color>
     <color name="background">#e7fbf4</color>
+    <color name="buttonNoSelectColor">#3F51B5</color>
+    <color name="buttonSelectColor">#B4DDF8</color>
 
 </resources>

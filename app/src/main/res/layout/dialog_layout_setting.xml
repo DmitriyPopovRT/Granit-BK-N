@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/dialogSettingServer"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_setting_server"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editDialogSettingServer"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/editDialogSettingServer"
+        android:layout_width="400dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/dialog_setting_server_tint"
+        app:layout_constraintStart_toEndOf="@+id/dialogSettingServer"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/dialogSettingPort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/dialog_setting_port"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editDialogSettingPort"
+        app:layout_constraintEnd_toStartOf="@+id/editDialogSettingPort"
+        app:layout_constraintStart_toEndOf="@+id/editDialogSettingServer" />
+
+    <EditText
+        android:id="@+id/editDialogSettingPort"
+        android:layout_width="130dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:hint="@string/dialog_setting_port_tint"
+        android:inputType="number"
+        app:layout_constraintStart_toEndOf="@+id/dialogSettingPort"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/dialogSettingTransportId"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_setting_transport_id"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editDialogSettingTransportId"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/dialogSettingTimeout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:text="@string/dialog_setting_timeout"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editDialogSettingTransportId"
+        app:layout_constraintStart_toEndOf="@+id/editDialogSettingTransportId" />
+
+    <EditText
+        android:id="@+id/editDialogSettingTimeout"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:inputType="number"
+        app:layout_constraintBaseline_toBaselineOf="@+id/dialogSettingTimeout"
+        app:layout_constraintStart_toEndOf="@+id/dialogSettingTimeout" />
+
+    <CheckBox
+        android:id="@+id/dialog_setting_ssl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="@string/dialog_setting_ssl"
+        app:layout_constraintBottom_toBottomOf="@+id/editDialogSettingTimeout"
+        app:layout_constraintStart_toEndOf="@+id/editDialogSettingTimeout"
+        app:layout_constraintTop_toTopOf="@+id/editDialogSettingTimeout" />
+
+    <EditText
+        android:id="@+id/editDialogSettingTransportId"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        app:layout_constraintStart_toEndOf="@+id/dialogSettingTransportId"
+        app:layout_constraintTop_toBottomOf="@+id/editDialogSettingPassword" />
+
+    <TextView
+        android:id="@+id/dialogSettingUser"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_setting_user"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editDialogSettingUser"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/editDialogSettingUser"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/dialog_setting_user_tint"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/dialogSettingUser"
+        app:layout_constraintTop_toBottomOf="@+id/editDialogSettingServer" />
+
+    <TextView
+        android:id="@+id/dialogSettingPassword"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_setting_password"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editDialogSettingPassword"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dialogSettingUser" />
+
+    <EditText
+        android:id="@+id/editDialogSettingPassword"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/dialog_setting_password_tint"
+        android:inputType="textPassword"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/dialogSettingPassword"
+        app:layout_constraintTop_toBottomOf="@+id/editDialogSettingUser" />
+
+    <ImageView
+        android:id="@+id/buttonLock"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/dialog_setting_ssl"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/dialog_setting_ssl"
+        app:srcCompat="@drawable/ic_baseline_lock_24" />
+
+    <TextView
+        android:id="@+id/textViewButtonLock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="@string/access_closed"
+        android:textColor="@android:color/holo_red_dark"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonLock"
+        app:layout_constraintEnd_toStartOf="@+id/buttonLock"
+        app:layout_constraintTop_toTopOf="@+id/buttonLock" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

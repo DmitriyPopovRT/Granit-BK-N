@@ -7,5 +7,32 @@
     <string name="location_absent">Локация отсутствует</string>
     <string name="location_request_was_canceled">Запрос локации был отменен</string>
     <string name="location_request_failed">Запрос локации завершился неудачно</string>
+    <string name="dialog_setting_server">Сервер</string>
+    <string name="dialog_setting_server_tint">Введите адрес сервера</string>
+    <string name="dialog_setting_port">Порт</string>
+    <string name="dialog_setting_port_tint">Введите порт</string>
+    <string name="dialog_setting_transport_id">Transport id</string>
+    <string name="dialog_setting_ssl">ssl</string>
+    <string name="dialog_setting_user">Логин</string>
+    <string name="dialog_setting_user_tint">Введите логин</string>
+    <string name="dialog_setting_password">Пароль</string>
+    <string name="dialog_setting_password_tint">Введите пароль</string>
+    <string name="dialog_setting_timeout">Timeout</string>
+    <string name="dialog_setting_title">Настройки</string>
+    <string name="ok">Ок</string>
+    <string name="cancel">Отмена</string>
+    <string name="access_closed">Доступ закрыт</string>
+    <string name="access_open">Доступ открыт</string>
+    <string name="login_header">Авторизация</string>
+    <string name="name_user">Имя пользователя</string>
+    <string name="password_user">Пароль</string>
+    <string name="name_user_hint">Введите имя пользователя</string>
+    <string name="enter_password">Введите пароль</string>
+    <string name="enter">Войти</string>
+    <string name="enter_toast">Авторизация пройдена</string>
+    <string name="error">Ошибка! Неправильное имя пользователя или пароль</string>
+    <string name="button_avto">Авто</string>
+    <string name="button_route">Маршрут</string>
+    <string name="button_settings">Настройки</string>
 
 </resources>

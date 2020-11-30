@@ -21,8 +21,10 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        android:theme="@style/AppTheme"
+        tools:ignore="ExtraText">
+        <activity
+            android:name=".MainActivity"
             android:screenOrientation="userLandscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,9 +34,9 @@
 
         <service
             android:name="ru.glorient.services.EGTSService"
-            android:foregroundServiceType="location"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="location" />
         <service
             android:name="ru.glorient.services.MQTTService"
             android:enabled="true"
@@ -43,13 +45,11 @@
         <service
             android:name="ru.glorient.services.STM32Service"
             android:enabled="true"
-            android:exported="false">
-        </service>
+            android:exported="false"/>
         <service
             android:name="ru.glorient.services.InformerService"
             android:enabled="true"
-            android:exported="false">
-        </service>
+            android:exported="false"/>
     </application>
 
 </manifest>

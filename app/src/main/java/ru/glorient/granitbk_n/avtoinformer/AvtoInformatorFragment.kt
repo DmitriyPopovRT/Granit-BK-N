@@ -1,7 +1,5 @@
 package ru.glorient.granitbk_n.avtoinformer
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -10,17 +8,15 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.location.LocationServices
 import org.greenrobot.eventbus.Subscribe
 import org.json.JSONObject
+import ru.glorient.granitbk_n.MainActivity
 import ru.glorient.granitbk_n.MessageEvent
 import ru.glorient.granitbk_n.R
 import ru.glorient.granitbk_n.accesory.UpdateListListener
@@ -28,7 +24,6 @@ import ru.glorient.granitbk_n.accesory.withArguments
 import ru.glorient.granitbk_n.adapters.StopAdapter
 import ru.glorient.granitbk_n.databinding.BusStopsBinding
 import ru.glorient.services.ServiceManager
-
 
 class AvtoInformatorFragment : Fragment(R.layout.bus_stops), UpdateListListener {
     private var stopAdapter: StopAdapter? = null
@@ -39,8 +34,8 @@ class AvtoInformatorFragment : Fragment(R.layout.bus_stops), UpdateListListener 
     private lateinit var busStopList: RecyclerView
     private lateinit var textViewStartStop: TextView
     private lateinit var textViewFinishStop: TextView
-
-//    private lateinit var listStop: MutableList<Stop>
+    // Список остановок маршрута
+    var listStop = mutableListOf<Stop>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -80,7 +75,8 @@ class AvtoInformatorFragment : Fragment(R.layout.bus_stops), UpdateListListener 
         // Подписываемся через лайвдату на изменение списка
         stopListViewModel.stops
             .observe(viewLifecycleOwner) { newStop: List<Stop> ->
-                val listStop = mutableListOf<Stop>()
+                listStop = mutableListOf<Stop>()
+                val listStopScreen = mutableListOf<Stop>()
                 newStop.forEachIndexed { ind, it : Stop ->
                     // Сравниваем по индексу и заполняем начало и конец маршрута
                     when (ind) {
@@ -91,24 +87,57 @@ class AvtoInformatorFragment : Fragment(R.layout.bus_stops), UpdateListListener 
                             textViewFinishStop.text = (it as? Stop.DefaultStop)?.name ?: ((it as? Stop.NextStop)?.name)
                         }
                         else -> {
-                            // Заполняем список остановок
-                            listStop.add(it)
+                            // Заполняем список остановок для адаптера
+                            listStopScreen.add(it)
                         }
                     }
+                    // Заполняем список остановок
+                    this.listStop.add(it)
                 }
 
                 // Выводим в адаптер
-                stopAdapter?.items = listStop
+                stopAdapter?.items = listStopScreen
             }
+
+        // Нажатие на стартовое поле маршрута (при ручном управлении)
+        textViewStartStop.setOnClickListener {
+            if (!MainActivity.flagSelectedButtonAvto) {
+                val id = (listStop[0] as? Stop.DefaultStop)?.id ?:
+                ((listStop[0] as? Stop.NextStop)?.id)
+                if (id != null) {
+                    play(id)
+                }
+            }
+        }
+
+        // Нажатие на финишное поле маршрута (при ручном управлении)
+        textViewFinishStop.setOnClickListener {
+            if (!MainActivity.flagSelectedButtonAvto) {
+                val id = (listStop[listStop.lastIndex] as? Stop.DefaultStop)?.id ?:
+                ((listStop[listStop.lastIndex] as? Stop.NextStop)?.id)
+                if (id != null) {
+                    play(id)
+                }
+            }
+        }
     }
 
     // Инициализируем адаптер
     private fun initList() {
-        Log.d(TAG, "initList ")
-        stopAdapter = StopAdapter { position -> play(position + 2) }
+        stopAdapter = StopAdapter { position ->
+            if (!MainActivity.flagSelectedButtonAvto) {
+                Log.d(TAG, "initList position = $position ")
+                Log.d(TAG, "initList listStop = ${listStop[position]} ")
+                val id = (listStop[position + 1] as? Stop.DefaultStop)?.id ?:
+                    ((listStop[position + 1] as? Stop.NextStop)?.id)
+                if (id != null) {
+                    play(id)
+                }
+            }
+        }
+
         with(busStopList) {
             adapter = stopAdapter
-
             // Кастомизируем LinearLayoutManager для медленного прокручивания списка
             val customLayoutManager: LinearLayoutManager? = object : LinearLayoutManager(requireContext()) {
                 override fun smoothScrollToPosition(
