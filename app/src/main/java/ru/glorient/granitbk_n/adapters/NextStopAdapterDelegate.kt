@@ -4,7 +4,7 @@ import android.view.ViewGroup
 import com.hannesdorfmann.adapterdelegates4.AbsListItemAdapterDelegate
 import ru.glorient.granitbk_n.R
 import ru.glorient.granitbk_n.avtoinformer.Stop
-import ru.glorient.granitbk_n.accesory.inflate
+import ru.glorient.granitbk_n.accessory.inflate
 
 // AdapterDelegate для текущих остановок
 class NextStopAdapterDelegate(

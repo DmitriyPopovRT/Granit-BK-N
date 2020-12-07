@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import org.json.JSONException
 import org.json.JSONObject
+import ru.glorient.granitbk_n.avtoinformer.AvtoInformatorFragment
 import java.util.*
 
 interface IServiceListiner{
@@ -431,19 +432,23 @@ class ServiceManager(
                 ServiceType.EGTS -> {
                     setState(service, ServiceState.STOPPING)
                     Intent(context, EGTSService::class.java).also({ context.stopService(it) })
+                    Log.d(AvtoInformatorFragment.TAG, "EGTS stopService")
                 }
                 ServiceType.MQTT -> {
                     clearState()
                     setState(service, ServiceState.STOPPING)
                     Intent(context, MQTTService::class.java).also({ context.stopService(it) })
+                    Log.d(AvtoInformatorFragment.TAG, "MQTT stopService")
                 }
                 ServiceType.STM32 -> {
                     setState(service, ServiceState.STOPPING)
                     Intent(context, STM32Service::class.java).also({ context.stopService(it) })
+                    Log.d(AvtoInformatorFragment.TAG, "STM32 stopService")
                 }
                 ServiceType.Informer -> {
                     setState(service, ServiceState.STOPPING)
                     Intent(context, InformerService::class.java).also({ context.stopService(it) })
+                    Log.d(AvtoInformatorFragment.TAG, "Informer stopService")
                 }
             }
         }

@@ -7,6 +7,122 @@
     tools:context=".MainActivity">
 
     <Button
+        android:id="@+id/buttonSos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/button_square"
+        android:padding="8dp"
+        android:text="@string/button_sos"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buttonSetting"
+        app:layout_constraintTop_toBottomOf="@+id/containerBus" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/statusBar"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:background="@color/colorPrimary"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="@string/app_name"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iconSatellite"
+            android:layout_width="40dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline13"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_satellite" />
+
+        <TextView
+            android:id="@+id/satellite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@+id/iconSatellite"
+            app:layout_constraintStart_toEndOf="@+id/iconSatellite"
+            app:layout_constraintTop_toTopOf="@+id/iconSatellite" />
+
+        <ImageView
+            android:id="@+id/signalNet"
+            android:layout_width="40dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iconSdcard"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_low_signal" />
+
+        <ImageView
+            android:id="@+id/iconCall"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iconSos"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_call_out" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="299dp" />
+
+        <ImageView
+            android:id="@+id/iconSos"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/satellite"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_icon_sos" />
+
+        <ImageView
+            android:id="@+id/iconSim"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iconCall"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_no_sim" />
+
+        <ImageView
+            android:id="@+id/iconSdcard"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iconSim"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_sd_card" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <Button
         android:id="@+id/buttonAvto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,48 +140,47 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:textColor="@android:color/black"
         android:textSize="30sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/statusBar" />
 
     <TextView
         android:id="@+id/speed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="8dp"
         android:textColor="@android:color/black"
         android:textSize="30sp"
         app:layout_constraintStart_toEndOf="@+id/time"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/statusBar" />
 
     <LinearLayout
         android:id="@+id/containerBus"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:orientation="vertical"
         android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/buttonRoute"
         app:layout_constraintEnd_toStartOf="@+id/avtoInformatorButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/time" />
 
-<!--    <TextView-->
-<!--        android:id="@+id/textView2"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_gravity="center"-->
-<!--        android:layout_marginStart="8dp"-->
-<!--        android:layout_marginEnd="8dp"-->
-<!--        android:layout_marginBottom="8dp"-->
-<!--        android:text="Здесь будут текстовые сообщения полученные от диспетчера \n\n"-->
-<!--        android:textColor="@android:color/black"-->
-<!--        android:textSize="20sp"-->
-<!--        app:layout_constraintBottom_toTopOf="@+id/button2"-->
-<!--        app:layout_constraintEnd_toStartOf="@+id/camera"-->
-<!--        app:layout_constraintStart_toStartOf="parent" />-->
+    <!--    <TextView-->
+    <!--        android:id="@+id/textView2"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_gravity="center"-->
+    <!--        android:layout_marginStart="8dp"-->
+    <!--        android:layout_marginEnd="8dp"-->
+    <!--        android:layout_marginBottom="8dp"-->
+    <!--        android:text="Здесь будут текстовые сообщения полученные от диспетчера \n\n"-->
+    <!--        android:textColor="@android:color/black"-->
+    <!--        android:textSize="20sp"-->
+    <!--        app:layout_constraintBottom_toTopOf="@+id/button2"-->
+    <!--        app:layout_constraintEnd_toStartOf="@+id/camera"-->
+    <!--        app:layout_constraintStart_toStartOf="parent" />-->
 
     <Button
         android:id="@+id/buttonRoute"
@@ -95,25 +210,24 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonRoute" />
 
-<!--    <Button-->
-<!--        android:id="@+id/button3"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginStart="16dp"-->
-<!--        android:layout_marginBottom="8dp"-->
-<!--        android:background="@drawable/button_square"-->
-<!--        android:padding="8dp"-->
-<!--        android:text="Быстрый ответ 3"-->
-<!--        android:textColor="@android:color/white"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintStart_toEndOf="@+id/button2" />-->
+    <!--    <Button-->
+    <!--        android:id="@+id/button3"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginStart="16dp"-->
+    <!--        android:layout_marginBottom="8dp"-->
+    <!--        android:background="@drawable/button_square"-->
+    <!--        android:padding="8dp"-->
+    <!--        android:text="Быстрый ответ 3"-->
+    <!--        android:textColor="@android:color/white"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintStart_toEndOf="@+id/button2" />-->
 
     <ImageButton
         android:id="@+id/imageButton4"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="4dp"
-        android:layout_marginEnd="4dp"
         android:background="@color/colorPrimary"
         android:padding="50dp"
         android:scaleType="centerCrop"
@@ -121,7 +235,7 @@
         app:layout_constraintBottom_toTopOf="@+id/avtoInformatorButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/statusBar"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <ImageButton
@@ -129,7 +243,6 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="4dp"
         android:layout_marginBottom="8dp"
         android:background="@color/colorPrimary"
         android:padding="50dp"
@@ -144,7 +257,6 @@
         android:id="@+id/camera"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="4dp"
         android:layout_marginBottom="4dp"
         android:background="@color/colorPrimary"
         android:padding="50dp"

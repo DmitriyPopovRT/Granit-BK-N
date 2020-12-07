@@ -1,4 +1,4 @@
-package ru.glorient.granitbk_n.accesory
+package ru.glorient.granitbk_n.accessory
 
 import android.view.LayoutInflater
 import android.view.View

@@ -34,5 +34,6 @@
     <string name="button_avto">Авто</string>
     <string name="button_route">Маршрут</string>
     <string name="button_settings">Настройки</string>
+    <string name="button_sos">SOS</string>
 
 </resources>

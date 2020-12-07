@@ -1,4 +1,4 @@
-package ru.glorient.granitbk_n.accesory
+package ru.glorient.granitbk_n.accessory
 
 import android.app.Dialog
 import android.os.Bundle
@@ -6,8 +6,10 @@ import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.DialogFragment
@@ -25,7 +27,7 @@ class LoginFragment : DialogFragment(R.layout.fragment_login) {
         get() = parentFragment.let { it as? DialogVerificationListener }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return requireActivity().let {
+        val alertDialog = requireActivity().let {
             val myBuilder = AlertDialog.Builder(it)
 
             val view = requireActivity()
@@ -55,6 +57,24 @@ class LoginFragment : DialogFragment(R.layout.fragment_login) {
                 .setView(view)
                 .create()
         }
+
+        alertDialog.window?.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+
+        return alertDialog
+    }
+
+    fun showDialog(fragment: DialogFragment) {
+        show(fragment.childFragmentManager, null)
+
+        fragmentManager?.executePendingTransactions()
+
+        dialog?.window?.decorView?.systemUiVisibility =
+            requireActivity().window.decorView.systemUiVisibility
+
+        // Make the dialogs window focusable again.
+        dialog?.window?.clearFlags(
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        )
     }
 
     private fun verification(): Boolean {
@@ -72,7 +92,7 @@ class LoginFragment : DialogFragment(R.layout.fragment_login) {
 
             // Создаем прогрессбар
             val progressBar = createProgressBar()
-            // Удаляем прогрессбар через 2 секунды и зажигаем кнопки и поля
+            // Удаляем прогрессбар через секунду и зажигаем кнопки и поля
             Handler().postDelayed({
                 container.removeView(progressBar)
                 // Включаем все кнопки и поля
@@ -81,11 +101,10 @@ class LoginFragment : DialogFragment(R.layout.fragment_login) {
                 Toast.makeText(activity,
                     R.string.enter_toast, Toast.LENGTH_SHORT).show()
 
+                dialogVerificationListener?.successfulVerification()
                 dialog?.dismiss()
 
-                dialogVerificationListener?.successfulVerification()
-
-            }, 1000)
+            }, 0)
         } else {
             // Пользователь неправильно ввел данные
             // Изменяем значения состояния

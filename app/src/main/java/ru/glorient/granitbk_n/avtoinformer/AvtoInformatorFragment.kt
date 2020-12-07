@@ -19,8 +19,9 @@ import org.json.JSONObject
 import ru.glorient.granitbk_n.MainActivity
 import ru.glorient.granitbk_n.MessageEvent
 import ru.glorient.granitbk_n.R
-import ru.glorient.granitbk_n.accesory.UpdateListListener
-import ru.glorient.granitbk_n.accesory.withArguments
+import ru.glorient.granitbk_n.accessory.Accessory
+import ru.glorient.granitbk_n.accessory.UpdateListListener
+import ru.glorient.granitbk_n.accessory.withArguments
 import ru.glorient.granitbk_n.adapters.StopAdapter
 import ru.glorient.granitbk_n.databinding.BusStopsBinding
 import ru.glorient.services.ServiceManager
@@ -62,12 +63,14 @@ class AvtoInformatorFragment : Fragment(R.layout.bus_stops), UpdateListListener 
 
         // Ловим нажатие на изменение направления движения
         binding.routeBidir.setOnClickListener {
+            Accessory().screenBlock(true, requireActivity().window)
             toggle()
 
             // Меняем маршрут и запрашиваем данные через пол секунды
             Handler(Looper.getMainLooper()).postAtTime({
                 stopListViewModel.requestStops()
             }, SystemClock.uptimeMillis() + 500L)
+            Accessory().screenBlock(false, requireActivity().window)
         }
 
         // Получаем список остановок
@@ -126,6 +129,13 @@ class AvtoInformatorFragment : Fragment(R.layout.bus_stops), UpdateListListener 
     private fun initList() {
         stopAdapter = StopAdapter { position ->
             if (!MainActivity.flagSelectedButtonAvto) {
+                Accessory().screenBlock(true, requireActivity().window)
+
+                if(position == -1) {
+                    Log.e(TAG, "Ошибка position = $position")
+                    Accessory().screenBlock(false, requireActivity().window)
+                    return@StopAdapter
+                }
                 Log.d(TAG, "initList position = $position ")
                 Log.d(TAG, "initList listStop = ${listStop[position]} ")
                 val id = (listStop[position + 1] as? Stop.DefaultStop)?.id ?:
@@ -133,6 +143,7 @@ class AvtoInformatorFragment : Fragment(R.layout.bus_stops), UpdateListListener 
                 if (id != null) {
                     play(id)
                 }
+                Accessory().screenBlock(false, requireActivity().window)
             }
         }
 

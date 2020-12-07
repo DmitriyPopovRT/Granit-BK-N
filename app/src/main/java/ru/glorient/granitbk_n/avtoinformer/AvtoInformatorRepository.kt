@@ -2,12 +2,11 @@ package ru.glorient.granitbk_n.avtoinformer
 
 import android.util.Log
 import org.json.JSONObject
-import ru.glorient.granitbk_n.accesory.UpdateListListener
+import ru.glorient.granitbk_n.accessory.UpdateListListener
 import ru.glorient.informer.ManualScript
 import ru.glorient.informer.RouteItem
 import ru.glorient.services.IServiceListiner
 import ru.glorient.services.ServiceManager
-import kotlin.random.Random
 
 class AvtoInformatorRepository : IServiceListiner {
 

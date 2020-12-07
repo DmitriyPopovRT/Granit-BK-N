@@ -123,25 +123,37 @@
         app:layout_constraintStart_toEndOf="@+id/dialogSettingPassword"
         app:layout_constraintTop_toBottomOf="@+id/editDialogSettingUser" />
 
-    <ImageView
-        android:id="@+id/buttonLock"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/dialog_setting_ssl"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/dialog_setting_ssl"
-        app:srcCompat="@drawable/ic_baseline_lock_24" />
-
-    <TextView
-        android:id="@+id/textViewButtonLock"
+    <LinearLayout
+        android:id="@+id/containerLock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="@string/access_closed"
-        android:textColor="@android:color/holo_red_dark"
-        app:layout_constraintBottom_toBottomOf="@+id/buttonLock"
-        app:layout_constraintEnd_toStartOf="@+id/buttonLock"
-        app:layout_constraintTop_toTopOf="@+id/buttonLock" />
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="@+id/dialog_setting_ssl"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/dialog_setting_ssl">
+
+        <TextView
+            android:id="@+id/textViewButtonLock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/access_closed"
+            android:layout_gravity="center_vertical"
+            android:textColor="@android:color/holo_red_dark"
+            app:layout_constraintBottom_toBottomOf="@+id/buttonLock"
+            app:layout_constraintEnd_toStartOf="@+id/buttonLock"
+            app:layout_constraintTop_toTopOf="@+id/buttonLock" />
+
+        <ImageView
+            android:id="@+id/buttonLock"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/dialog_setting_ssl"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/dialog_setting_ssl"
+            app:srcCompat="@drawable/ic_baseline_lock_24" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

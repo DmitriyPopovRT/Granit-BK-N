@@ -1,9 +1,8 @@
-package ru.glorient.granitbk_n.accesory
+package ru.glorient.granitbk_n.accessory
 
 import android.content.Context
 import android.widget.Toast
 import org.json.JSONObject
-import ru.glorient.granitbk_n.MainActivity
 import java.io.File
 import java.io.FileNotFoundException
 

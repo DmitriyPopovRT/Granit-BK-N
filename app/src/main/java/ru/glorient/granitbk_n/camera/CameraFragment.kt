@@ -260,13 +260,13 @@ class CameraFragment : Fragment(R.layout.activity_camera) {
             mediaRecorder1?.reset()
             mediaRecorder1?.release()
             mediaRecorder1 = null
-            mBackCamera!!.lock()
+            if (mBackCamera != null) mBackCamera!!.lock()
         }
         if (mediaRecorder2 != null) {
             mediaRecorder2?.reset()
             mediaRecorder2?.release()
             mediaRecorder2 = null
-            mFrontCamera!!.lock()
+            if (mFrontCamera != null) mFrontCamera!!.lock()
         }
     }
 

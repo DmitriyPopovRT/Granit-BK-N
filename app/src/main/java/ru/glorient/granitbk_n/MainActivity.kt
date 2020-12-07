@@ -1,14 +1,26 @@
 package ru.glorient.granitbk_n
 
 import android.Manifest
+import android.app.Activity
+import android.app.AlertDialog
+import android.app.Dialog
+import android.content.Context
+import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.os.*
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import android.view.Gravity
-import android.view.Menu
-import android.view.MenuItem
+import android.view.View
+import android.view.View.OnSystemUiVisibilityChangeListener
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -18,10 +30,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import org.json.JSONObject
-import ru.glorient.granitbk_n.accesory.DialogFragmentSetting
-import ru.glorient.granitbk_n.accesory.OpenFileDialog
-import ru.glorient.granitbk_n.accesory.SettingsParse
-import ru.glorient.granitbk_n.accesory.UpdateListListener
+import ru.glorient.granitbk_n.accessory.*
 import ru.glorient.granitbk_n.avtoinformer.AvtoInformatorFragment
 import ru.glorient.granitbk_n.camera.CameraFragment
 import ru.glorient.granitbk_n.databinding.ActivityMainBinding
@@ -31,9 +40,36 @@ import java.util.*
 class MainActivity : AppCompatActivity(), UpdateListListener {
     // Флаг запущен ли сервис
     var flagService = false
+
     // Начальное textView показывающее что маршрут не подгружен
     private lateinit var textViewNoList: TextView
     private lateinit var binding: ActivityMainBinding
+    private lateinit var progressBar: ProgressBar
+
+    private var handler: Handler? = null
+    private var runnable: Runnable = object : Runnable {
+        override fun run() {
+            Log.i(AvtoInformatorFragment.TAG, "postDelayed")
+            binding.satellite.text = "0"
+        }
+    }
+
+    // Менеджер для работы с местоположением
+    private var locationManager: LocationManager? = null
+
+    private val locationListener: LocationListener =
+        object : LocationListener {
+            // обязательные функции LocationListener
+            override fun onLocationChanged(location: Location) {}
+            override fun onProviderDisabled(provider: String) {}
+            override fun onProviderEnabled(provider: String) {}
+            override fun onStatusChanged(
+                provider: String,
+                status: Int,
+                extras: Bundle
+            ) {
+            }
+        }
 
     private val updateListListener: UpdateListListener?
         get() = supportFragmentManager.findFragmentByTag("AvtoInformatorFragment")
@@ -44,6 +80,7 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
 
         // Проверяем все ли даны разрешения
         if (!verifyPermissions()) {
@@ -56,10 +93,12 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
 
         // При нажатии на значок загружаем фрагмент Камера
         binding.camera.setOnClickListener {
+            Accessory().screenBlock(true, window)
             val fragmentCamera = supportFragmentManager.findFragmentByTag("CameraFragment")
             val alreadyHasFragment = fragmentCamera != null
 
             if (!alreadyHasFragment) {
+                binding.containerBus.removeAllViews()
                 // Создаем фрагмент камера
                 supportFragmentManager.beginTransaction()
                     .replace(
@@ -71,52 +110,95 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
             } else {
                 supportFragmentManager.popBackStack("CameraFragment", 0)
             }
+            Accessory().screenBlock(false, window)
         }
 
         // При нажатии на значок загружаем фрагмент Автоинформатор
         binding.avtoInformatorButton.setOnClickListener {
-            val fragmentAvtoInformator =
-                supportFragmentManager.findFragmentByTag("AvtoInformatorFragment")
-            val alreadyHasFragment = fragmentAvtoInformator != null
+            if (filePath.isNotEmpty()) {
+                Accessory().screenBlock(true, window)
+                val fragmentAvtoInformator =
+                    supportFragmentManager.findFragmentByTag("AvtoInformatorFragment")
+                val alreadyHasFragment = fragmentAvtoInformator != null
 
-            if (!alreadyHasFragment) {
-                // Создаем фрагмент автоинформатор
-                supportFragmentManager.beginTransaction()
-                    .replace(
-                        R.id.containerBus,
-                        AvtoInformatorFragment(), "AvtoInformatorFragment"
-                    )
-                    .addToBackStack("AvtoInformatorFragment")
-                    .commit()
+                if (!alreadyHasFragment) {
+                    // Создаем фрагмент автоинформатор
+                    supportFragmentManager.beginTransaction()
+                        .replace(
+                            R.id.containerBus,
+                            AvtoInformatorFragment(), "AvtoInformatorFragment"
+                        )
+                        .addToBackStack("AvtoInformatorFragment")
+                        .commit()
+                } else {
+                    supportFragmentManager.popBackStack("AvtoInformatorFragment", 0)
+                }
+                Accessory().screenBlock(false, window)
             } else {
-                supportFragmentManager.popBackStack("AvtoInformatorFragment", 0)
+                Toast.makeText(this, "Выберите файл маршрута", Toast.LENGTH_SHORT).show()
             }
         }
 
         // Выбираем маршрут из файлов на устройстве
         binding.buttonRoute.setOnClickListener {
             val fileDialog = OpenFileDialog(this)
+            fileDialog.setFilterJson(".jsonc")
+            val drawFolder = resources.getDrawable(R.drawable.ic_folder)
+            val drawRoute = resources.getDrawable(R.drawable.ic_route)
+            fileDialog.setFolderIcon(drawFolder)
+            fileDialog.setFileIcon(drawRoute)
             fileDialog.setOpenDialogListener { fileName ->
-                Log.d(AvtoInformatorFragment.TAG, "Путь к файлу $fileName")
-                filePath = fileName
-                init()
+                Accessory().screenBlock(true, window)
+
+                progressBar = createProgressBar()
+                binding.containerBus.removeAllViews()
+//                binding.containerBus.removeView(textViewNoList)
+                binding.containerBus.addView(progressBar)
+
+                if (flagService) {
+                    model.states.forEach {
+                        Log.d(
+                            AvtoInformatorFragment.TAG,
+                            "stopService ${it.key.name} ${it.value.state != ServiceManager.ServiceState.STOPED}"
+                        )
+                        if (it.value.state != ServiceManager.ServiceState.STOPED) {
+                            model.serviceManager.stopService(it.key)
+                            model.serviceManager.unsubscribe(model.mInformer)
+                        }
+                    }
+
+                    Handler(Looper.getMainLooper()).postAtTime({
+                        Log.d(AvtoInformatorFragment.TAG, "Путь к файлу $fileName")
+                        filePath = fileName
+                        init()
+                    }, SystemClock.uptimeMillis() + 500L)
+                }
+
+                Handler(Looper.getMainLooper()).postAtTime({
+                    startService(fileName)
+                    flagService = true
+                }, SystemClock.uptimeMillis() + 1000L)
             }
-            fileDialog.show()
+
+            val dialog = fileDialog.show()
+            dialog.window?.decorView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
         }
 
         // Настройки
         binding.buttonSetting.setOnClickListener {
-//            val file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path + File.separator.toString() + "settings.jsonc"
-            DialogFragmentSetting()
-                .show(supportFragmentManager, "DialogFragmentSetting")
+            DialogFragmentSetting().showDialog(this)
         }
 
         // Автоматический/ручной режим
         binding.buttonAvto.setOnClickListener {
-            if(flagSelectedButtonAvto) {
+            if (flagSelectedButtonAvto) {
                 binding.buttonAvto.setBackgroundResource(R.drawable.button_square)
-            }
-            else {
+            } else {
                 binding.buttonAvto.setBackgroundResource(R.drawable.button_square_select)
             }
 
@@ -124,43 +206,85 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
 
             model.mInformer.toggleGPS()
         }
+
+        // Кнопка SOS
+        binding.buttonSos.setOnClickListener {
+            val dialog: AlertDialog = AlertDialog.Builder(this)
+                .setMessage("Вы действительно хотите отправить команду SOS?")
+                .setPositiveButton("Да") { _, _ ->
+                    binding.iconSos.visibility = View.VISIBLE
+                }
+                .setNegativeButton("Отмена") { _, _ ->
+                    binding.iconSos.visibility = View.INVISIBLE
+                }
+                .create()
+
+            dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+            dialog.show()
+            dialog.window?.decorView?.systemUiVisibility = this.window.decorView.systemUiVisibility
+            dialog.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+        }
     }
 
-    // Подключаем меню
+    private fun setFullScreen() {
+        // прячем панель навигации и строку состояния
+        val decorView = window.decorView
+        val uiOptions = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+        decorView.systemUiVisibility = uiOptions
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        setFullScreen()
+    }
+
+    private fun startService(fileName: String) {
+        if (!flagService) {
+            Log.d(AvtoInformatorFragment.TAG, "Путь к файлу $fileName")
+            filePath = fileName
+            init()
+        }
+
+        model.states.forEach {
+            Log.d(
+                AvtoInformatorFragment.TAG,
+                "startService ${it.key.name} ${it.value.state == ServiceManager.ServiceState.STOPED}"
+            )
+            if (it.value.state == ServiceManager.ServiceState.STOPED) {
+                model.serviceManager.startService(
+                    it.key,
+                    it.value.connection,
+                    it.value.payload
+                )
+
+                if (it.key.name == "Informer") {
+
+                    val timeDelay = SystemClock.uptimeMillis() + 1000L
+                    val mainHandler = Handler(Looper.getMainLooper())
+                    mainHandler.postAtTime({
+                        binding.containerBus.removeView(progressBar)
+                        supportFragmentManager.beginTransaction()
+                            .replace(
+                                R.id.containerBus,
+                                AvtoInformatorFragment.newInstance(""),
+                                "AvtoInformatorFragment"
+                            )
+                            .addToBackStack("AvtoInformatorFragment")
+                            .commit()
+
+                        Accessory().screenBlock(false, window)
+                    }, timeDelay)
+                }
+            }
+        }
+    }
+
+    /*// Подключаем меню
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.menu_main, menu)
         return true
-    }
-
-    // Инициализируем ServiceManager
-    fun init() {
-        model = Model()
-        model.serviceManager = ServiceManager(
-            context = this,
-            onStateChange = { serviceType: ServiceManager.ServiceType, serviceState: ServiceManager.ServiceState ->
-                val s = model.states[serviceType]!!.copy()
-                s.state = serviceState
-                model.states[serviceType] = s
-                model.logs.add(0, "$serviceType->$serviceState")
-                if (model.logs.size > 50) model.logs.removeRange(49, model.logs.size - 1)
-            },
-            onRecieve = { serviceType: ServiceManager.ServiceType, jsonObject: JSONObject ->
-                model.logs.add(0, "$serviceType->$jsonObject")
-                if (model.logs.size > 50) model.logs.removeRange(49, model.logs.size - 1)
-                Log.d(serviceType.toString(), jsonObject.toString())
-            },
-            onSTM32Search = {
-                if (it) {
-                    model.states[ServiceManager.ServiceType.STM32] =
-                        Model.ServiceModel(ServiceManager.ServiceState.STOPED)
-                } else {
-                    model.states.remove(ServiceManager.ServiceType.STM32)
-                }
-            }
-        )
-
-        model.serviceManager.subscribe(model.mInformer)
     }
 
     // Обрабатываем нажатие на пункты меню
@@ -217,6 +341,36 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }*/
+
+    // Инициализируем ServiceManager
+    fun init() {
+        model = Model()
+        model.serviceManager = ServiceManager(
+            context = this,
+            onStateChange = { serviceType: ServiceManager.ServiceType, serviceState: ServiceManager.ServiceState ->
+                val s = model.states[serviceType]!!.copy()
+                s.state = serviceState
+                model.states[serviceType] = s
+                model.logs.add(0, "$serviceType->$serviceState")
+                if (model.logs.size > 50) model.logs.removeRange(49, model.logs.size - 1)
+            },
+            onRecieve = { serviceType: ServiceManager.ServiceType, jsonObject: JSONObject ->
+                model.logs.add(0, "$serviceType->$jsonObject")
+                if (model.logs.size > 50) model.logs.removeRange(49, model.logs.size - 1)
+                Log.d(serviceType.toString(), jsonObject.toString())
+            },
+            onSTM32Search = {
+                if (it) {
+                    model.states[ServiceManager.ServiceType.STM32] =
+                        Model.ServiceModel(ServiceManager.ServiceState.STOPED)
+                } else {
+                    model.states.remove(ServiceManager.ServiceType.STM32)
+                }
+            }
+        )
+
+        model.serviceManager.subscribe(model.mInformer)
     }
 
     // Функция создания прогресс бара программно
@@ -225,15 +379,13 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
         val progressBar = ProgressBar(this)
         // Указываем программно ширину textView
         val params = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
+            200,
+            200
         )
         progressBar.layoutParams = params
-
         progressBar.foregroundGravity = Gravity.CENTER
         return progressBar
     }
-
 
     // Дублируем onCreate если пользователь дал разрешения
     private fun onCreateActivity() {
@@ -245,13 +397,56 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
             ViewGroup.LayoutParams.MATCH_PARENT
         )
         textViewNoList.layoutParams = params
-        textViewNoList.text = "Список пуст. Пожалуйста, запустите службу"
+        textViewNoList.text = "Список пуст. Пожалуйста, выберите маршрут"
         textViewNoList.gravity = Gravity.CENTER
         textViewNoList.setTextColor(Color.RED)
         binding.containerBus.addView(textViewNoList)
 
         // Инициализируем и считываем настройки с json
         settingsParse = SettingsParse(this)
+
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+
+        // получаем местоположения устройства
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        locationManager!!.requestLocationUpdates(
+            LocationManager.GPS_PROVIDER,
+            0, 0f, locationListener
+        )
+        locationManager!!.addGpsStatusListener { event ->
+            var satellites = 0
+            var satellitesInFix = 0
+            val timetofix = locationManager!!.getGpsStatus(null)!!.timeToFirstFix
+//            Log.i(AvtoInformatorFragment.TAG, "Time to first fix = $timetofix")
+            for (sat in locationManager!!.getGpsStatus(null)!!.satellites) {
+                if (sat.usedInFix()) {
+                    satellitesInFix++
+                }
+                satellites++
+            }
+//            Log.i(
+//                AvtoInformatorFragment.TAG,
+//                "$satellites Used In Last Fix ($satellitesInFix)"
+//            )
+            binding.satellite.text = satellitesInFix.toString()
+
+            if(handler != null) {
+                handler!!.removeCallbacks(runnable)
+            }
+
+            handler = Handler(Looper.getMainLooper())
+            handler!!.postAtTime(runnable, SystemClock.uptimeMillis() + 2000L)
+        }
     }
 
     // Раз в секунду обновляем время
@@ -382,6 +577,46 @@ class MainActivity : AppCompatActivity(), UpdateListListener {
             .addOnFailureListener {
                 Log.d(TAG, resources.getString(R.string.location_request_failed))
             }
+    }
+
+    fun showImmersiveDialog(mDialog: Dialog, mActivity: Activity) {
+        //Set the dialog to not focusable
+        mDialog.getWindow()?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        )
+        mDialog.getWindow()?.getDecorView()?.setSystemUiVisibility(setSystemUiVisibility())
+        mDialog.setOnShowListener {
+            @Override
+            fun onShow(dialog: DialogInterface?) {
+                //Clear the not focusable flag from the window
+                mDialog.getWindow()?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+
+                //Update the WindowManager with the new attributes
+                val wm: WindowManager =
+                    mActivity.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                wm.updateViewLayout(
+                    mDialog.getWindow()?.getDecorView(),
+                    mDialog.getWindow()?.getAttributes()
+                )
+            }
+        }
+        mDialog.getWindow()?.getDecorView()
+            ?.setOnSystemUiVisibilityChangeListener(OnSystemUiVisibilityChangeListener { visibility ->
+                if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {
+                    mDialog.getWindow()!!.getDecorView()
+                        .setSystemUiVisibility(setSystemUiVisibility())
+                }
+            })
+    }
+
+    fun setSystemUiVisibility(): Int {
+        return (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
     }
 }
 

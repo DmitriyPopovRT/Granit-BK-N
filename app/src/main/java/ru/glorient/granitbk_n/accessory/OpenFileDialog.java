@@ -1,4 +1,4 @@
-package ru.glorient.granitbk_n.accesory;
+package ru.glorient.granitbk_n.accessory;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -40,7 +40,7 @@ import ru.glorient.granitbk_n.R;
 public class OpenFileDialog extends AlertDialog.Builder {
 
     // Начальный путь
-    private String currentPath = Environment.getExternalStorageDirectory().getPath() + "/Granit BK-N";
+    private String currentPath = Environment.getExternalStorageDirectory().getPath() + "/Granit BK-N/Routes";
     private List<File> files = new ArrayList<File>();
     private TextView title;
     private ListView listView;
@@ -139,6 +139,22 @@ public class OpenFileDialog extends AlertDialog.Builder {
         return this;
     }
 
+    // Фильтруем по расширению
+    public OpenFileDialog setFilterJson(final String filter) {
+        filenameFilter = new FilenameFilter() {
+
+            @Override
+            public boolean accept(File file, String fileName) {
+                File tempFile = new File(String.format("%s/%s", file.getPath(), fileName));
+
+                if (tempFile.isFile())
+                    return tempFile.getName().toLowerCase().endsWith(filter);
+                return true;
+            }
+        };
+        return this;
+    }
+
     public OpenFileDialog setOnlyFoldersFilter() {
         isOnlyFoldersFilter = true;
         filenameFilter = new FilenameFilter() {
@@ -229,6 +245,8 @@ public class OpenFileDialog extends AlertDialog.Builder {
             public void onClick(View view) {
                 File file = new File(currentPath);
                 File parentDirectory = file.getParentFile();
+                if(currentPath.equals("/storage/emulated/0/Granit BK-N/Routes"))
+                    return;
                 if (parentDirectory != null) {
                     currentPath = parentDirectory.getPath();
                     RebuildFiles(((FileAdapter) listView.getAdapter()));
@@ -265,7 +283,7 @@ public class OpenFileDialog extends AlertDialog.Builder {
     private List<File> getFiles(String directoryPath) {
         File directory = new File(directoryPath);
         File[] list = directory.listFiles(filenameFilter);
-        if(list == null)
+        if (list == null)
             list = new File[]{};
         List<File> fileList = Arrays.asList(list);
         Collections.sort(fileList, new Comparator<File>() {

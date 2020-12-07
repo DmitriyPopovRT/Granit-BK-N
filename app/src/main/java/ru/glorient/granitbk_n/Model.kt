@@ -19,6 +19,7 @@ class Model{
     private val settingsParse = MainActivity.settingsParse
 
     init {
+        Log.d(AvtoInformatorFragment.TAG, "server ${settingsParse.server}")
         states[ServiceManager.ServiceType.EGTS] = ServiceModel(ServiceManager.ServiceState.STOPED,
 //                "{'server':'10.0.2.2','port':7001,'transport_id':6080}",
             """{"server":"10.20.9.3","port":7001,"timeout":3000,"transport_id":6080}""",
